@@ -1,0 +1,126 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@0.5.13
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - docker/publish:
+          name: Controller docker build
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: false
+          image: banzaicloud/cert-manager-controller
+          tag: ${CIRCLE_BRANCH//\//_}
+          dockerfile: build/docker/Dockerfile.controller
+          filters:
+            branches:
+              only: /^.+-fips$/
+            tags:
+              ignore: /.*/
+      - docker/publish:
+          name: CAInjector docker build
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: false
+          image: banzaicloud/cert-manager-cainjector
+          tag: ${CIRCLE_BRANCH//\//_}
+          dockerfile: build/docker/Dockerfile.cainjector
+          filters:
+            branches:
+              only: /^.+-fips$/
+            tags:
+              ignore: /.*/
+      - docker/publish:
+          name: ACMESolver docker build
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: false
+          image: banzaicloud/cert-manager-acmesolver
+          tag: ${CIRCLE_BRANCH//\//_}
+          dockerfile: build/docker/Dockerfile.acmesolver
+          filters:
+            branches:
+              only: /^.+-fips$/
+            tags:
+              ignore: /.*/
+      - docker/publish:
+          name: Webhook docker build
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: false
+          image: banzaicloud/cert-manager-webhook
+          tag: ${CIRCLE_BRANCH//\//_}
+          dockerfile: build/docker/Dockerfile.webhook
+          filters:
+            branches:
+              only: /^.+-fips$/
+            tags:
+              ignore: /.*/
+
+      - docker/publish:
+          context: dockerhub
+          name: Controller docker build & push
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: true
+          image: banzaicloud/cert-manager-controller
+          tag: ${CIRCLE_TAG//\//_}
+          dockerfile: build/docker/Dockerfile.controller
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.+-fips$/
+      - docker/publish:
+          context: dockerhub
+          name: CAInjector docker build & push
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: true
+          image: banzaicloud/cert-manager-cainjector
+          tag: ${CIRCLE_TAG//\//_}
+          dockerfile: build/docker/Dockerfile.cainjector
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.+-fips$/
+      - docker/publish:
+          context: dockerhub
+          name: ACMESolver docker build & push
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: true
+          image: banzaicloud/cert-manager-acmesolver
+          tag: ${CIRCLE_TAG//\//_}
+          dockerfile: build/docker/Dockerfile.acmesolver
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.+-fips$/
+      - docker/publish:
+          context: dockerhub
+          name: Webhook docker build & push
+          executor:
+            name: docker/machine
+            dlc: true
+          deploy: true
+          image: banzaicloud/cert-manager-webhook
+          tag: ${CIRCLE_TAG//\//_}
+          dockerfile: build/docker/Dockerfile.webhook
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.+-fips$/
