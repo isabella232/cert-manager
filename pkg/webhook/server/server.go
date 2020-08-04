@@ -36,6 +36,7 @@ import (
 	ciphers "k8s.io/component-base/cli/flag"
 	crlog "sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/jetstack/cert-manager/pkg/util"
 	"github.com/jetstack/cert-manager/pkg/util/profiling"
 	"github.com/jetstack/cert-manager/pkg/webhook/handlers"
 	servertls "github.com/jetstack/cert-manager/pkg/webhook/server/tls"
@@ -159,12 +160,14 @@ func (s *Server) Run(stopCh <-chan struct{}) error {
 		if err != nil {
 			return err
 		}
-		l = tls.NewListener(l, &tls.Config{
+		cfg := &tls.Config{
 			GetCertificate:           s.CertificateSource.GetCertificate,
 			CipherSuites:             cipherSuites,
 			MinVersion:               minVersion,
 			PreferServerCipherSuites: true,
-		})
+		}
+		util.TLSConfigDefaults(cfg)
+		l = tls.NewListener(l, cfg)
 	} else {
 		s.Log.Info("listening for insecure connections", "address", s.ListenAddr)
 	}
