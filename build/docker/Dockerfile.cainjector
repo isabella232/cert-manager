@@ -13,7 +13,7 @@ COPY . ./
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 LDFLAGS='-extldflags -static -s -w' go build --tags fips -o /tmp/cainjector ./cmd/cainjector
 
 
-FROM alpine as distroless
+FROM gcr.io/distroless/base as distroless
 
 WORKDIR /
 
