@@ -1,0 +1,22 @@
+FROM goboring/golang:1.13.9b4 AS builder
+
+RUN apt -y update && apt -y install bash make git ca-certificates curl
+
+RUN mkdir /opt/project
+WORKDIR /opt/project
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 LDFLAGS='-extldflags -static -s -w' go build --tags fips -o /tmp/webhook ./cmd/webhook
+
+
+FROM alpine as distroless
+
+WORKDIR /
+
+COPY --from=builder /tmp/webhook /usr/local/bin/
+
+ENTRYPOINT ["/usr/local/bin/webhook"]
