@@ -1,6 +1,6 @@
-FROM goboring/golang:1.13.9b4 AS builder
+FROM goboring/golang:1.14.6b4 AS builder
 
-RUN apt -y update && apt -y install bash make git ca-certificates curl
+RUN apt-get -y update && apt-get -y install --no-install-recommends bash=5.0-4 make=4.2.1-1.2 git=1:2.20.1-2+deb10u3 ca-certificates=20200601~deb10u1 curl=7.64.0-4+deb10u1
 
 RUN mkdir /opt/project
 WORKDIR /opt/project
@@ -18,5 +18,6 @@ FROM gcr.io/distroless/base as distroless
 WORKDIR /
 
 COPY --from=builder /tmp/acmesolver /usr/local/bin/
+COPY LICENSE.BoringSSL /LICENSE.BoringSSL
 
 ENTRYPOINT ["/usr/local/bin/acmesolver"]
